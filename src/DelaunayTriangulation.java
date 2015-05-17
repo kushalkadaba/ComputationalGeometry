@@ -112,14 +112,17 @@ public LinkedList<DelVertex> divide(int start, int end) throws IOException{
 		//make convex hull and add in adjacency list.
 		for(int i = start; i<end; i++){
 			if(end - start == 3 && i == end-1){
-				Node<DelVertex> beforeNode = (Node<DelVertex>) 
-						ch.getHead().node.findPos(vertices.get(i));
-				while(ch.getCurrent().node.compareTo(beforeNode.node)!=0){
-					ch.setCurrent(ch.getNext());
-				}
 				Node<DelVertex> v = new Node<DelVertex>();
 				v.setNode(vertices.get(i));
-				ch.getCurrent().addPrev(v);
+				if(v.node.isLeftof(new Line(ch.getHead().node,
+						ch.getHead().next.node))){
+					ch.add(vertices.get(i));
+				}else{
+					v.next = ch.getHead().next;
+					v.prev = ch.getHead();
+					v.next.prev = v;
+					ch.getHead().next = v;
+				}
 			}else{
 				ch.add(vertices.get(i));
 			}
@@ -227,6 +230,8 @@ private void merge(int start, int middle, int end, Line bottomTangent,
 		bw.newLine();
 		bw.write("Point "+L.v.x+" "+L.v.y);
 		bw.newLine();
+		bw.write("Color 255 69 0");
+		bw.newLine();
 		bw.write("Point "+R1.v.x+" "+R1.v.y);
 		bw.newLine();
 		bw.write("*");
@@ -253,18 +258,40 @@ private void merge(int start, int middle, int end, Line bottomTangent,
 				bw.newLine();
 				bw.write("Line "+R.v.x+" "+R.v.y+" "+R1.v.x+" "+R1.v.y);
 				bw.newLine();
+				//bw.write("Stroke 3");
+				//bw.newLine();
+				bw.write("*");
+				bw.newLine();
+				//bw.write("Reload");
+				//bw.newLine();
+				//writeToFile(0, vertices.size());
+				bw.write("Color 255 255 255");
+				bw.newLine();
 				bw.write("Stroke 3");
 				bw.newLine();
-				bw.write("*");
+				bw.write("Line "+R.v.x+" "+R.v.y+" "+R1.v.x+" "+R1.v.y);
 				bw.newLine();
-				bw.write("Reload");
+				bw.write("Color 0 0 0");
 				bw.newLine();
-				writeToFile(0, vertices.size());
-				bw.write("*");
+				bw.write("Point "+R1.v.x+" "+R1.v.y);
+				bw.newLine();
+				bw.write("Color 0 0 255");
+				bw.newLine();
+				bw.write("Point "+R.v.x+" "+R.v.y);
 				bw.newLine();
 				/*---------------------------------------------*/
 				R1= R2;
 				R2 = R.pred(R1);
+				/*-------------------Color R1 & R2-------------*/
+				bw.write("Color 255 69 0");
+				bw.newLine();
+				bw.write("Point "+R1.v.x+" "+R1.v.y);
+				bw.newLine();
+				bw.write("Point "+R2.v.x+" "+R2.v.y);
+				bw.newLine();
+				bw.write("*");
+				bw.newLine();
+				/*---------------------------------------------*/
 			}
 			/*-------------------Decoloring points-------------*/
 			if(!(R2.equals(L)||R2.equals(R))){
@@ -279,13 +306,7 @@ private void merge(int start, int middle, int end, Line bottomTangent,
 		}
 		DelVertex L1 = L.succ(R);
 		/*--------------Draw point references---------------*/
-		if(!(R1.equals(L)||R1.equals(R))){
-			bw.write("Color 0 0 0");
-			bw.newLine();
-			bw.write("Point "+R1.v.x+" "+R1.v.y);
-			bw.newLine();
-		}
-		bw.write("Color 0 0 255");
+		bw.write("Color 0 128 128");
 		bw.newLine();
 		bw.write("Point "+L1.v.x+" "+L1.v.y);
 		bw.newLine();
@@ -307,18 +328,38 @@ private void merge(int start, int middle, int end, Line bottomTangent,
 				bw.newLine();
 				bw.write("Line "+L.v.x+" "+L.v.y+" "+L1.v.x+" "+L1.v.y);
 				bw.newLine();
+				bw.write("*");
+				bw.newLine();
+				//bw.write("Reload");
+				//bw.newLine();
+				//writeToFile(0, vertices.size());
+				bw.write("Color 255 255 255");
+				bw.newLine();
 				bw.write("Stroke 3");
 				bw.newLine();
-				bw.write("*");
+				bw.write("Line "+L.v.x+" "+L.v.y+" "+L1.v.x+" "+L1.v.y);
 				bw.newLine();
-				bw.write("Reload");
+				bw.write("Color 0 0 0");
 				bw.newLine();
-				writeToFile(0, vertices.size());
-				bw.write("*");
+				bw.write("Point "+L1.v.x+" "+L1.v.y);
+				bw.newLine();
+				bw.write("Color 0 0 255");
+				bw.newLine();
+				bw.write("Point "+L.v.x+" "+L.v.y);
 				bw.newLine();
 				/*---------------------------------------------*/
 				L1 = L2;
 				L2 = L.succ(L1);
+				/*------------------Re-Color L1 & L2----------*/
+				bw.write("Color 0 128 128");
+				bw.newLine();
+				bw.write("Point "+L1.v.x+" "+L1.v.y);
+				bw.newLine();
+				bw.write("Point "+L2.v.x+" "+L2.v.y);
+				bw.newLine();
+				bw.write("*");
+				bw.newLine();
+				/*---------------------------------------------*/
 			}
 			/*-------------------Decoloring points-------------*/
 			bw.write("Color 0 0 0");
@@ -334,6 +375,8 @@ private void merge(int start, int middle, int end, Line bottomTangent,
 		bw.write("Color 0 0 0");
 		bw.newLine();
 		bw.write("Point "+L1.v.x+" "+L1.v.y);
+		bw.newLine();
+		bw.write("Point "+R1.v.x+" "+R1.v.y);
 		bw.newLine();
 		bw.write("Point "+L.v.x+" "+L.v.y);
 		bw.newLine();
@@ -439,17 +482,21 @@ private Line upperHull(LinkedList<DelVertex> chL, LinkedList<DelVertex> chR) {
 		chR.setCurrent(chR.getNext());
 	DelVertex Z = chL.getNext().node;
 	DelVertex Z1 = chR.getNext().node;
-	DelVertex Z11 = Y.pred(Z1);
+	DelVertex Z11 = chR.getPrev().node;//Y.pred(Z1);
 	while (true) {
 		if (Z.isRightof(new Line(Y, X))) {
 			DelVertex temp = Z;
-			Z = Z.succ(X);
+			while(chL.getCurrent().node.compareTo(Z)!=0)
+				chL.setCurrent(chL.getNext());
+			Z = chL.getNext().node;//Z.succ(X);
 			X = temp;
 
 		} else {
 			if (Z11.isRightof(new Line(Y,X))) {
 				DelVertex temp = Z11;
-				Z11 = Z11.pred(Y);
+				while(chR.getCurrent().node.compareTo(Z11)!=0)
+					chR.setCurrent(chR.getNext());
+				Z11 = chR.getPrev().node;//Z11.pred(Y);
 				Y = temp;
 			} else{
 				//insertIntoAdjacency(Y,X);
@@ -467,16 +514,20 @@ private Line lowerHull(LinkedList<DelVertex> chL, LinkedList<DelVertex> chR) {
 		chR.setCurrent(chR.getNext());
 	DelVertex Z = chR.getNext().node;
 	DelVertex Z1 = chL.getNext().node;
-	DelVertex Z11 = X.pred(Z1);
+	DelVertex Z11 = chL.getPrev().node;//X.pred(Z1);
 	while (true) {
 		if (Z.isRightof(new Line(X, Y))) {
 			DelVertex temp = Z;
-			Z = Z.succ(Y);
+			while(chR.getCurrent().node.compareTo(Z)!=0)
+				chR.setCurrent(chR.getNext());
+			Z = chR.getNext().node;//Z.succ(Y);
 			Y = temp;
 		} else {
 			if (Z11.isRightof(new Line(X, Y))) {
 				DelVertex temp = Z11;
-				Z11 = Z11.pred(X);
+				while(chL.getCurrent().node.compareTo(Z11)!=0)
+					chL.setCurrent(chL.getNext());
+				Z11 = chL.getPrev().node;//Z11.pred(X);
 				X = temp;
 			} else{
 				//insertIntoAdjacency(Y,X);
@@ -521,6 +572,7 @@ private LinkedList<DelVertex> convexHull(LinkedList<DelVertex> chL,
 	}
 	chL.getCurrent().next = tempChL.getCurrent();
 	tempChL.getCurrent().prev = chL.getCurrent();
+	chL.setHead(chL.getCurrent());
 	return chL;
 }
 public static void main(String[] args){
